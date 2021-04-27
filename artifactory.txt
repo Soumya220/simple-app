@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+    tools {
+        maven 'MAVEN_HOME'
+    }
+    
+    stages{
+        stage('Build'){
+            steps{
+                 bat 'mvn clean package'
+                 archiveArtifacts artifacts: 'target/*.war', onlyIfSuccessful: true
+            }
+        }
+        stage('Upload War To Artifactory'){
+            steps{
+                script{
+
+                    def mavenPom = readMavenPom file: 'pom.xml'
+                    def artifactoryRepoName = mavenPom.version.endsWith("SNAPSHOT") ? "libs-snapshot-local" : "libs-release-local"
+                    artifactoryArtifactUploader artifacts: [
+                        [
+                            artifactId: 'simple-app', 
+                            classifier: '', 
+                            file: "target/simple-app-${mavenPom.version}.war", 
+                            type: 'war'
+                        ]
+                    ], 
+                    credentialsId: 'admin', 
+                    groupId: 'in.javahome', 
+                    nexusUrl: 'localhost:8081', 
+                    nexusVersion: '6.16.0', 
+                    protocol: 'http', 
+                    repository: artifactory-build-info, 
+                    version: "${mavenPom.version}"
+                    }
+            }
+        }
+    }
+}
