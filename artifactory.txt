@@ -15,23 +15,22 @@ pipeline {
             steps{
                 script{
 
-                    def mavenPom = readMavenPom file: 'pom.xml'
-                    def artifactoryRepoName = mavenPom.version.endsWith("SNAPSHOT") ? "libs-snapshot-local" : "libs-release-local"
+                    def mavenPom = 'pom.xml'
+                    def artifactoryRepoName = 3.0.0-SNAPSHOT ? "libs-snapshot-local" : "libs-release-local"
                     artifactoryArtifactUploader artifacts: [
                         [
-                            artifactId: 'simple-app', 
-                            classifier: '', 
-                            file: "target/simple-app-${mavenPom.version}.war", 
+                            artifactId: 'simple-app'
+                            classifier: '' 
+                            file: "target/simple-app-3.0.0.war" 
                             type: 'war'
                         ]
                     ], 
-                    credentialsId: 'admin', 
-                    groupId: 'in.javahome', 
-                    nexusUrl: 'localhost:8081', 
-                    nexusVersion: '6.16.0', 
-                    protocol: 'http', 
-                    repository: artifactory-build-info, 
-                    version: "${mavenPom.version}"
+                    credentialsId: 'admin' 
+                    groupId: 'in.javahome'
+                    artifactoryUrl: 'http://localhost:8081/artifactory'
+                    artifactoryVersion: '6.16.0' 
+                    repository: 'artifactory-build-info' 
+                    version: "3.0.0"
                     }
             }
         }
